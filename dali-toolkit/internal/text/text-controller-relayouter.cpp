@@ -93,8 +93,11 @@ Size Controller::Relayouter::CalculateLayoutSizeOnRequiredControllerSize(Control
   {
     impl.UpdateModel(onlyOnceOperations);
 
-    // Layout the text for the new width.
-    operationsPending = static_cast<OperationsMask>(operationsPending | requestedOperationsMask);
+    if(impl.mIsAutoScrollEnabled)
+    {
+      // Layout the text for the new width.
+      operationsPending = static_cast<OperationsMask>(operationsPending | requestedOperationsMask);
+    }
 
     DoRelayout(impl,
                requestedControllerSize,
