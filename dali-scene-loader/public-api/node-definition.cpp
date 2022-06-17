@@ -22,6 +22,11 @@
 
 namespace Dali
 {
+namespace
+{
+constexpr std::string_view IBL_SCALE_FACTOR_STRING("uIblScaleFactor");
+}
+
 namespace SceneLoader
 {
 void NodeDefinition::Renderable::RegisterResources(IResourceReceiver& receiver) const
@@ -87,6 +92,11 @@ Matrix NodeDefinition::GetLocalSpace() const
   Matrix localSpace{false};
   localSpace.SetTransformComponents(mScale, mOrientation, mPosition);
   return localSpace;
+}
+
+std::string_view NodeDefinition::GetIBLScaleFactorName()
+{
+  return IBL_SCALE_FACTOR_STRING;
 }
 
 void ModelNode::RegisterResources(IResourceReceiver& receiver) const
@@ -167,7 +177,7 @@ void ModelNode::OnCreate(const NodeDefinition& node, NodeDefinition::CreateParam
   }
 
   Index envIdx = matDef.mEnvironmentIdx;
-  actor.RegisterProperty("uIblIntensity", resources.mEnvironmentMaps[envIdx].first.mIblIntensity);
+  actor.RegisterProperty(IBL_SCALE_FACTOR_STRING.data(), resources.mEnvironmentMaps[envIdx].first.mIblIntensity);
 
   float opaque = 0.0f;
   float mask = 0.0f;

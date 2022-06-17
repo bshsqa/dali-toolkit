@@ -64,10 +64,10 @@ uniform vec3 uEmissiveFactor;
 #endif
 
 //// For IBL
+uniform sampler2D sbrdfLUT;
 uniform samplerCube sDiffuseEnvSampler;
 uniform samplerCube sSpecularEnvSampler;
-uniform sampler2D sbrdfLUT;
-uniform float uIblIntensity;
+uniform float uIblScaleFactor;
 
 // For Alpha Mode.
 uniform lowp float uOpaque;
@@ -208,7 +208,7 @@ void main()
 
   lowp vec3 diffuse = diffuseLight * diffuseColor;
   lowp vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
-  color += (diffuse + specular) * uIblIntensity;
+  color += (diffuse + specular) * uIblScaleFactor;
 
 #ifdef OCCLUSION
   lowp float ao = texture(sOcclusion, vUV).r;

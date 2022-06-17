@@ -219,6 +219,8 @@ public: // METHODS
 
   Matrix GetLocalSpace() const;
 
+  static std::string_view GetIBLScaleFactorName();
+
 public: // DATA
   static const std::string ORIGINAL_MATRIX_PROPERTY_NAME;
 
