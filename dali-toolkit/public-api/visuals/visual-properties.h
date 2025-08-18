@@ -303,6 +303,8 @@ enum
    */
   SUBDIVIDE_GRID_Y,
 
+  RENDER_PASS_TAG,
+
   /**
    * @brief Hints for rendering.
    * @details Name "hints", type Dali::Shader::Hint (Property::INTEGER), Property::STRING or Property::ARRAY of Property::STRING.

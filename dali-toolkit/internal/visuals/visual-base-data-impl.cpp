@@ -116,8 +116,7 @@ bool GetPolicyFromValue(const Property::Value& value, Vector2& policy)
 } // unnamed namespace
 
 Internal::Visual::Base::Impl::Impl(FittingMode fittingMode, Toolkit::Visual::Type type)
-: mCustomShader(nullptr),
-  mEventObserver(nullptr),
+: mEventObserver(nullptr),
   mTransform(nullptr),
   mMixColor(Color::WHITE),
   mControlSize(Vector2::ZERO),
@@ -140,7 +139,7 @@ Internal::Visual::Base::Impl::Impl(FittingMode fittingMode, Toolkit::Visual::Typ
 
 Internal::Visual::Base::Impl::~Impl()
 {
-  delete mCustomShader;
+  mCustomShaders.clear();
   if(mDecorationData)
   {
     delete mDecorationData;
@@ -163,9 +162,11 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
   mHints    = Shader::Hint::NONE;
   mName     = "";
 
+  DALI_LOG_ERROR("SPM1\n");
   Property::Value* vertexShaderValue = shaderMap.Find(Toolkit::Visual::Shader::Property::VERTEX_SHADER, CUSTOM_VERTEX_SHADER);
   if(vertexShaderValue)
   {
+    DALI_LOG_ERROR("SPM2\n");
     if(!GetStringFromProperty(*vertexShaderValue, mVertexShader))
     {
       DALI_LOG_ERROR("'%s' parameter does not correctly specify a string\n", CUSTOM_VERTEX_SHADER);
@@ -175,6 +176,7 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
   Property::Value* fragmentShaderValue = shaderMap.Find(Toolkit::Visual::Shader::Property::FRAGMENT_SHADER, CUSTOM_FRAGMENT_SHADER);
   if(fragmentShaderValue)
   {
+    DALI_LOG_ERROR("SPM3\n");
     if(!GetStringFromProperty(*fragmentShaderValue, mFragmentShader))
     {
       DALI_LOG_ERROR("'%s' parameter does not correctly specify a string\n", CUSTOM_FRAGMENT_SHADER);
@@ -184,6 +186,7 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
   Property::Value* subdivideXValue = shaderMap.Find(Toolkit::Visual::Shader::Property::SUBDIVIDE_GRID_X, CUSTOM_SUBDIVIDE_GRID_X);
   if(subdivideXValue)
   {
+    DALI_LOG_ERROR("SPM4\n");
     int subdivideX;
     if(!subdivideXValue->Get(subdivideX) || subdivideX < 1)
     {
@@ -198,6 +201,7 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
   Property::Value* subdivideYValue = shaderMap.Find(Toolkit::Visual::Shader::Property::SUBDIVIDE_GRID_Y, CUSTOM_SUBDIVIDE_GRID_Y);
   if(subdivideYValue)
   {
+    DALI_LOG_ERROR("SPM5\n");
     int subdivideY;
     if(!subdivideYValue->Get(subdivideY) || subdivideY < 1)
     {
@@ -209,9 +213,20 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
     }
   }
 
+  Property::Value* renderPassTagValue = shaderMap.Find(Toolkit::Visual::Shader::Property::RENDER_PASS_TAG, CUSTOM_RENDER_PASS_TAG);
+  if(renderPassTagValue)
+  {
+    DALI_LOG_ERROR("SPM6\n");
+    if(!renderPassTagValue->Get(mRenderTaskTag) || mRenderTaskTag < 0)
+    {
+      DALI_LOG_ERROR("'%s' parameter does not correctly specify a value greater than 0\n", CUSTOM_RENDER_PASS_TAG);
+    }
+  }
+
   Property::Value* hintsValue = shaderMap.Find(Toolkit::Visual::Shader::Property::HINTS, CUSTOM_SHADER_HINTS);
   if(hintsValue)
   {
+    DALI_LOG_ERROR("SPM7\n");
     if(!Scripting::GetBitmaskEnumerationProperty(*hintsValue, SHADER_HINT_TABLE, SHADER_HINT_TABLE_COUNT, mHints))
     {
       DALI_LOG_ERROR("'%s' parameter does not correctly specify a hint or an array of hint strings\n", CUSTOM_SHADER_HINTS);
@@ -221,6 +236,7 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
   Property::Value* nameValue = shaderMap.Find(Toolkit::Visual::Shader::Property::NAME, CUSTOM_SHADER_NAME);
   if(nameValue)
   {
+    DALI_LOG_ERROR("SPM8\n");
     if(!GetStringFromProperty(*nameValue, mName))
     {
       DALI_LOG_ERROR("'%s' parameter does not correctly specify a string\n", CUSTOM_SHADER_NAME);
@@ -228,7 +244,7 @@ void Internal::Visual::Base::Impl::CustomShader::SetPropertyMap(const Property::
   }
 }
 
-void Internal::Visual::Base::Impl::CustomShader::CreatePropertyMap(Property::Map& map) const
+Property::Map Internal::Visual::Base::Impl::CustomShader::CreatePropertyMap() const
 {
   if(!mVertexShader.empty() || !mFragmentShader.empty())
   {
@@ -261,7 +277,7 @@ void Internal::Visual::Base::Impl::CustomShader::CreatePropertyMap(Property::Map
       customShader.Insert(Toolkit::Visual::Shader::Property::NAME, mName);
     }
 
-    map.Insert(Toolkit::Visual::Property::SHADER, customShader);
+    return customShader;
   }
 }
 

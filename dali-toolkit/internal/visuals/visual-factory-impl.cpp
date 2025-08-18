@@ -145,6 +145,7 @@ Toolkit::Visual::Base VisualFactory::CreateVisual(const Property::Map& propertyM
     Scripting::GetEnumerationProperty(*typeValue, VISUAL_TYPE_TABLE, VISUAL_TYPE_TABLE_COUNT, visualType);
   }
 
+  DALI_LOG_ERROR("CVST\n");
   switch(visualType)
   {
     case Toolkit::Visual::BORDER:
@@ -155,7 +156,9 @@ Toolkit::Visual::Base VisualFactory::CreateVisual(const Property::Map& propertyM
 
     case Toolkit::Visual::COLOR:
     {
+      DALI_LOG_ERROR("CV CR ST\n");
       visualPtr = ColorVisual::New(GetFactoryCache(), GetColorVisualShaderFactory(), propertyMap);
+      DALI_LOG_ERROR("CV CR ED\n");
       break;
     }
 
@@ -304,6 +307,7 @@ Toolkit::Visual::Base VisualFactory::CreateVisual(const Property::Map& propertyM
       break;
     }
   }
+  DALI_LOG_ERROR("CVED\n");
 
   DALI_LOG_INFO(gLogFilter, Debug::Concise, "VisualFactory::CreateVisual( VisualType:%s %s%s)\n", Scripting::GetEnumerationName<Toolkit::DevelVisual::Type>(visualType, VISUAL_TYPE_TABLE, VISUAL_TYPE_TABLE_COUNT), (visualType == Toolkit::DevelVisual::IMAGE) ? "url:" : "", ((visualType == Toolkit::DevelVisual::IMAGE) ? (([&]()
                                                                                                                                                                                                                                                                                                                                  {

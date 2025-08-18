@@ -65,12 +65,13 @@ struct Base::Impl
   {
     CustomShader(const Property::Map& map);
     void SetPropertyMap(const Property::Map& map);
-    void CreatePropertyMap(Property::Map& map) const;
+    Property::Map CreatePropertyMap() const;
 
     std::string               mVertexShader;
     std::string               mFragmentShader;
     Dali::ImageDimensions     mGridSize;
     Dali::Shader::Hint::Value mHints; //(bitfield) values from enum Shader::Hint
+    int32_t                   mRenderTaskTag;
     std::string               mName;
   };
 
@@ -121,6 +122,52 @@ struct Base::Impl
     Toolkit::Align::Type mOrigin;
     Toolkit::Align::Type mAnchorPoint;
   };
+
+  void AddCustomShader(const Property::Map& shaderMap)
+  {
+    mCustomShaders.emplace_back(std::make_unique<CustomShader>(shaderMap));
+  }
+
+  void ClearCustomShader()
+  {
+    mCustomShaders.clear();
+  }
+
+  uint32_t GetCustomShaderCount() const
+  {
+    return mCustomShaders.size();
+  }
+
+  const Visual::Base::Impl::CustomShader* GetCustomShaderAt(uint32_t index) const
+  {
+    if(index < mCustomShaders.size())
+    {
+      return mCustomShaders[index].get();
+    }
+    return nullptr;
+  }
+
+  void CreateCustomShaderPropertyMap(Property::Map& map)
+  {
+    if(mCustomShaders.empty())
+    {
+      return;
+    }
+
+    if(mCustomShaders.size() == 1)
+    {
+      map.Insert(Toolkit::Visual::Property::SHADER, mCustomShaders[0]->CreatePropertyMap());
+    }
+    else
+    {
+      Property::Array shaderArray;
+      for(auto && customShader : mCustomShaders)
+      {
+        shaderArray.PushBack(customShader->CreatePropertyMap());
+      }
+      map.Insert(Toolkit::Visual::Property::SHADER, shaderArray);
+    }
+  }
 
   /**
    * @brief Ensure to create and get the transform data for the visual.
@@ -280,19 +327,19 @@ struct Base::Impl
     DecorationData::SetCornerSquareness(mDecorationData, value);
   }
 
-  VisualRenderer                  mRenderer;
-  CustomShader*                   mCustomShader;
-  EventObserver*                  mEventObserver; ///< Allows controls to observe when the visual has events to notify
-  std::string                     mName;
-  std::unique_ptr<Transform>      mTransform;
-  Vector4                         mMixColor;
-  Size                            mControlSize;
-  DecorationData*                 mDecorationData;
-  int                             mDepthIndex;
-  FittingMode                     mFittingMode; ///< How the contents should fit the view
-  int                             mFlags;
-  Toolkit::Visual::ResourceStatus mResourceStatus;
-  const Toolkit::Visual::Type     mType;
+  VisualRenderer                             mRenderer;
+  std::vector<std::unique_ptr<CustomShader>> mCustomShaders;
+  EventObserver*                             mEventObserver; ///< Allows controls to observe when the visual has events to notify
+  std::string                                mName;
+  std::unique_ptr<Transform>                 mTransform;
+  Vector4                                    mMixColor;
+  Size                                       mControlSize;
+  DecorationData*                            mDecorationData;
+  int                                        mDepthIndex;
+  FittingMode                                mFittingMode; ///< How the contents should fit the view
+  int                                        mFlags;
+  Toolkit::Visual::ResourceStatus            mResourceStatus;
+  const Toolkit::Visual::Type                mType;
 
   bool mAlwaysUsingBorderline : 1;         ///< Whether we need the borderline in shader always.
   bool mAlwaysUsingCornerRadius : 1;       ///< Whether we need the corner radius in shader always.
